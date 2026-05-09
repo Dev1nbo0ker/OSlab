@@ -196,8 +196,7 @@ int printf(const char *const fmt, ...)
                 counter += printf_add_to_buffer(buffer, fmt[i], idx, BUF_LEN);
                 break;
 
-            case 'c':
-                counter += printf_add_to_buffer(buffer, va_arg(ap, char), idx, BUF_LEN);
+            case 'c': counter += printf_add_to_buffer(buffer, (char)va_arg(ap, char), idx, BUF_LEN); 
                 break;
 
             case 's':
@@ -230,6 +229,7 @@ int printf(const char *const fmt, ...)
 
     buffer[idx] = '\0';
     counter += stdio.print(buffer);
+    va_end(ap);
 
     return counter;
 }
