@@ -164,6 +164,11 @@ int printf_add_to_buffer(char *buffer, char c, int &idx, const int BUF_LEN)
 
 int printf(const char *const fmt, ...)
 {
+    if (fmt == 0)
+    {
+        return 0;
+    }
+
     const int BUF_LEN = 32;
 
     char buffer[BUF_LEN + 1];
@@ -187,6 +192,7 @@ int printf(const char *const fmt, ...)
             i++;
             if (fmt[i] == '\0')
             {
+                counter += printf_add_to_buffer(buffer, '%', idx, BUF_LEN);
                 break;
             }
 
@@ -196,32 +202,55 @@ int printf(const char *const fmt, ...)
                 counter += printf_add_to_buffer(buffer, fmt[i], idx, BUF_LEN);
                 break;
 
-            case 'c': counter += printf_add_to_buffer(buffer, (char)va_arg(ap, char), idx, BUF_LEN); 
+            case 'c':
+                counter += printf_add_to_buffer(buffer, (char)va_arg(ap, int), idx, BUF_LEN);
                 break;
 
             case 's':
+            {
+                const char *str = va_arg(ap, const char *);
+
+                if (str == 0)
+                {
+                    str = "(null)";
+                }
+
                 buffer[idx] = '\0';
                 idx = 0;
                 counter += stdio.print(buffer);
-                counter += stdio.print(va_arg(ap, const char *));
+                counter += stdio.print(str);
                 break;
+            }
 
             case 'd':
             case 'x':
+            {
                 int temp = va_arg(ap, int);
+                uint32 value;
 
                 if (temp < 0 && fmt[i] == 'd')
                 {
                     counter += printf_add_to_buffer(buffer, '-', idx, BUF_LEN);
-                    temp = -temp;
+                    value = (uint32)(-(temp + 1)) + 1;
+                }
+                else
+                {
+                    value = (uint32)temp;
                 }
 
-                itos(number, temp, (fmt[i] == 'd' ? 10 : 16));
+                itos(number, value, (fmt[i] == 'd' ? 10 : 16));
 
                 for (int j = 0; number[j]; ++j)
                 {
                     counter += printf_add_to_buffer(buffer, number[j], idx, BUF_LEN);
                 }
+
+                break;
+            }
+
+            default:
+                counter += printf_add_to_buffer(buffer, '%', idx, BUF_LEN);
+                counter += printf_add_to_buffer(buffer, fmt[i], idx, BUF_LEN);
                 break;
             }
         }
@@ -229,6 +258,7 @@ int printf(const char *const fmt, ...)
 
     buffer[idx] = '\0';
     counter += stdio.print(buffer);
+
     va_end(ap);
 
     return counter;
