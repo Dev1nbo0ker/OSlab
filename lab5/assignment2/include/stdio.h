@@ -3,12 +3,11 @@
 
 #include "os_type.h"
 
-class STDIO
-{
-private:
+class STDIO {
+  private:
     uint8 *screen;
 
-public:
+  public:
     STDIO();
     // 初始化函数
     void initialize();
@@ -27,7 +26,7 @@ public:
     // 获取光标位置
     uint getCursor();
 
-private:
+  private:
     // 滚屏
     void rollUp();
 };

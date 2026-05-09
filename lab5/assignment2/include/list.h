@@ -1,18 +1,16 @@
 #ifndef LIST_H
 #define LIST_H
 
-struct ListItem
-{
+struct ListItem {
     ListItem *previous;
     ListItem *next;
 };
 
-class List
-{
-public:
+class List {
+  public:
     ListItem head;
 
-public:
+  public:
     // 初始化List
     List();
     // 显式初始化List

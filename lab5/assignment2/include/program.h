@@ -4,15 +4,15 @@
 #include "list.h"
 #include "thread.h"
 
-#define ListItem2PCB(ADDRESS, LIST_ITEM) ((PCB *)((int)(ADDRESS) - (int)&((PCB *)0)->LIST_ITEM))
+#define ListItem2PCB(ADDRESS, LIST_ITEM)                                       \
+    ((PCB *)((int)(ADDRESS) - (int)&((PCB *)0)->LIST_ITEM))
 
-class ProgramManager
-{
-public:
+class ProgramManager {
+  public:
     List allPrograms;   // 所有状态的线程/进程的队列
     List readyPrograms; // 处于ready(就绪态)的线程/进程的队列
     PCB *running;       // 当前执行的线程
-public:
+  public:
     ProgramManager();
     void initialize();
 
@@ -24,7 +24,8 @@ public:
     // priority：线程的优先级
 
     // 成功，返回pid；失败，返回-1
-    int executeThread(ThreadFunction function, void *parameter, const char *name, int priority);
+    int executeThread(ThreadFunction function, void *parameter,
+                      const char *name, int priority);
 
     // 分配一个PCB
     PCB *allocatePCB();

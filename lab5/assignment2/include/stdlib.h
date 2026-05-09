@@ -3,8 +3,7 @@
 
 #include "os_type.h"
 
-template<typename T>
-void swap(T &x, T &y);
+template <typename T> void swap(T &x, T &y);
 
 /*
  * 将一个非负整数转换为指定进制表示的字符串。

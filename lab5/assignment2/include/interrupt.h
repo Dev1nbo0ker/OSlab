@@ -3,14 +3,13 @@
 
 #include "os_type.h"
 
-class InterruptManager
-{
-private:
+class InterruptManager {
+  private:
     uint32 *IDT;              // IDT起始地址
     uint32 IRQ0_8259A_MASTER; // 主片中断起始向量号
     uint32 IRQ0_8259A_SLAVE;  // 从片中断起始向量号
 
-public:
+  public:
     InterruptManager();
     void initialize();
     // 设置中断描述符
@@ -36,7 +35,7 @@ public:
     // status=true，开中断；status=false，关中断
     void setInterruptStatus(bool status);
 
-private:
+  private:
     // 初始化8259A芯片
     void initialize8259A();
 };

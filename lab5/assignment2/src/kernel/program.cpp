@@ -1,34 +1,32 @@
 #include "program.h"
-#include "stdlib.h"
-#include "interrupt.h"
 #include "asm_utils.h"
-#include "stdio.h"
-#include "thread.h"
+#include "interrupt.h"
 #include "os_modules.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "thread.h"
 
-const int PCB_SIZE = 4096;                   // PCB的大小，4KB。
-char PCB_SET[PCB_SIZE * MAX_PROGRAM_AMOUNT]; // 存放PCB的数组，预留了MAX_PROGRAM_AMOUNT个PCB的大小空间。
-bool PCB_SET_STATUS[MAX_PROGRAM_AMOUNT];     // PCB的分配状态，true表示已经分配，false表示未分配。
+const int PCB_SIZE = 4096; // PCB的大小，4KB。
+char PCB_SET
+    [PCB_SIZE *
+     MAX_PROGRAM_AMOUNT]; // 存放PCB的数组，预留了MAX_PROGRAM_AMOUNT个PCB的大小空间。
+bool PCB_SET_STATUS
+    [MAX_PROGRAM_AMOUNT]; // PCB的分配状态，true表示已经分配，false表示未分配。
 
-ProgramManager::ProgramManager()
-{
-    initialize();
-}
+ProgramManager::ProgramManager() { initialize(); }
 
-void ProgramManager::initialize()
-{
+void ProgramManager::initialize() {
     allPrograms.initialize();
     readyPrograms.initialize();
     running = nullptr;
 
-    for (int i = 0; i < MAX_PROGRAM_AMOUNT; ++i)
-    {
+    for (int i = 0; i < MAX_PROGRAM_AMOUNT; ++i) {
         PCB_SET_STATUS[i] = false;
     }
 }
 
-int ProgramManager::executeThread(ThreadFunction function, void *parameter, const char *name, int priority)
-{
+int ProgramManager::executeThread(ThreadFunction function, void *parameter,
+                                  const char *name, int priority) {
     // 关中断，防止创建线程的过程被打断
     bool status = interruptManager.getInterruptStatus();
     interruptManager.disableInterrupt();
@@ -42,8 +40,7 @@ int ProgramManager::executeThread(ThreadFunction function, void *parameter, cons
     // 初始化分配的页
     memset(thread, 0, PCB_SIZE);
 
-    for (int i = 0; i < MAX_PROGRAM_NAME && name[i]; ++i)
-    {
+    for (int i = 0; i < MAX_PROGRAM_NAME && name[i]; ++i) {
         thread->name[i] = name[i];
     }
 
@@ -52,6 +49,13 @@ int ProgramManager::executeThread(ThreadFunction function, void *parameter, cons
     thread->ticks = priority * 10;
     thread->ticksPassedBy = 0;
     thread->pid = ((int)thread - (int)PCB_SET) / PCB_SIZE;
+    if (running) {
+        thread->parentPid = running->pid;
+    } else {
+        thread->parentPid = -1;
+    }
+
+    thread->createdTicks = thread->ticks;
 
     // 线程栈
     thread->stack = (int *)((int)thread + PCB_SIZE);
@@ -73,25 +77,20 @@ int ProgramManager::executeThread(ThreadFunction function, void *parameter, cons
     return thread->pid;
 }
 
-void ProgramManager::schedule()
-{
+void ProgramManager::schedule() {
     bool status = interruptManager.getInterruptStatus();
     interruptManager.disableInterrupt();
 
-    if (readyPrograms.size() == 0)
-    {
+    if (readyPrograms.size() == 0) {
         interruptManager.setInterruptStatus(status);
         return;
     }
 
-    if (running->status == ProgramStatus::RUNNING)
-    {
+    if (running->status == ProgramStatus::RUNNING) {
         running->status = ProgramStatus::READY;
         running->ticks = running->priority * 10;
         readyPrograms.push_back(&(running->tagInGeneralList));
-    }
-    else if (running->status == ProgramStatus::DEAD)
-    {
+    } else if (running->status == ProgramStatus::DEAD) {
         releasePCB(running);
     }
 
@@ -107,29 +106,22 @@ void ProgramManager::schedule()
     interruptManager.setInterruptStatus(status);
 }
 
-void program_exit()
-{
+void program_exit() {
     PCB *thread = programManager.running;
     thread->status = ProgramStatus::DEAD;
 
-    if (thread->pid)
-    {
+    if (thread->pid) {
         programManager.schedule();
-    }
-    else
-    {
+    } else {
         interruptManager.disableInterrupt();
         printf("halt\n");
         asm_halt();
     }
 }
 
-PCB *ProgramManager::allocatePCB()
-{
-    for (int i = 0; i < MAX_PROGRAM_AMOUNT; ++i)
-    {
-        if (!PCB_SET_STATUS[i])
-        {
+PCB *ProgramManager::allocatePCB() {
+    for (int i = 0; i < MAX_PROGRAM_AMOUNT; ++i) {
+        if (!PCB_SET_STATUS[i]) {
             PCB_SET_STATUS[i] = true;
             return (PCB *)((int)PCB_SET + PCB_SIZE * i);
         }
@@ -138,8 +130,7 @@ PCB *ProgramManager::allocatePCB()
     return nullptr;
 }
 
-void ProgramManager::releasePCB(PCB *program)
-{
+void ProgramManager::releasePCB(PCB *program) {
     int index = ((int)program - (int)PCB_SET) / PCB_SIZE;
     PCB_SET_STATUS[index] = false;
 }

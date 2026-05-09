@@ -1,22 +1,14 @@
 #include "list.h"
 
-List::List()
-{
-    head.next = head.previous = 0;
-}
+List::List() { head.next = head.previous = 0; }
 
-void List::initialize()
-{
-    head.next = head.previous = 0;
-}
+void List::initialize() { head.next = head.previous = 0; }
 
-int List::size()
-{
+int List::size() {
     ListItem *temp = head.next;
     int counter = 0;
 
-    while (temp)
-    {
+    while (temp) {
         temp = temp->next;
         ++counter;
     }
@@ -24,27 +16,21 @@ int List::size()
     return counter;
 }
 
-bool List::empty()
-{
-    return size() == 0;
-}
+bool List::empty() { return size() == 0; }
 
-ListItem *List::back()
-{
+ListItem *List::back() {
     ListItem *temp = head.next;
     if (!temp)
         return nullptr;
 
-    while (temp->next)
-    {
+    while (temp->next) {
         temp = temp->next;
     }
 
     return temp;
 }
 
-void List::push_back(ListItem *itemPtr)
-{
+void List::push_back(ListItem *itemPtr) {
     ListItem *temp = back();
     if (temp == nullptr)
         temp = &head;
@@ -53,26 +39,19 @@ void List::push_back(ListItem *itemPtr)
     itemPtr->next = nullptr;
 }
 
-void List::pop_back()
-{
+void List::pop_back() {
     ListItem *temp = back();
-    if (temp)
-    {
+    if (temp) {
         temp->previous->next = nullptr;
         temp->previous = temp->next = nullptr;
     }
 }
 
-ListItem *List::front()
-{
-    return head.next;
-}
+ListItem *List::front() { return head.next; }
 
-void List::push_front(ListItem *itemPtr)
-{
+void List::push_front(ListItem *itemPtr) {
     ListItem *temp = head.next;
-    if (temp)
-    {
+    if (temp) {
         temp->previous = itemPtr;
     }
     head.next = itemPtr;
@@ -80,13 +59,10 @@ void List::push_front(ListItem *itemPtr)
     itemPtr->next = temp;
 }
 
-void List::pop_front()
-{
+void List::pop_front() {
     ListItem *temp = head.next;
-    if (temp)
-    {
-        if (temp->next)
-        {
+    if (temp) {
+        if (temp->next) {
             temp->next->previous = &head;
         }
         head.next = temp->next;
@@ -94,21 +70,14 @@ void List::pop_front()
     }
 }
 
-void List::insert(int pos, ListItem *itemPtr)
-{
-    if (pos == 0)
-    {
+void List::insert(int pos, ListItem *itemPtr) {
+    if (pos == 0) {
         push_front(itemPtr);
-    }
-    else
-    {
+    } else {
         int length = size();
-        if (pos == length)
-        {
+        if (pos == length) {
             push_back(itemPtr);
-        }
-        else if (pos < length)
-        {
+        } else if (pos < length) {
             ListItem *temp = at(pos);
 
             itemPtr->previous = temp->previous;
@@ -119,73 +88,56 @@ void List::insert(int pos, ListItem *itemPtr)
     }
 }
 
-void List::erase(int pos)
-{
-    if (pos == 0)
-    {
+void List::erase(int pos) {
+    if (pos == 0) {
         pop_front();
-    }
-    else
-    {
+    } else {
         int length = size();
-        if (pos < length)
-        {
+        if (pos < length) {
             ListItem *temp = at(pos);
 
             temp->previous->next = temp->next;
-            if (temp->next)
-            {
+            if (temp->next) {
                 temp->next->previous = temp->previous;
             }
         }
     }
 }
 
-void List::erase(ListItem *itemPtr)
-{
+void List::erase(ListItem *itemPtr) {
     ListItem *temp = head.next;
 
-    while (temp && temp != itemPtr)
-    {
+    while (temp && temp != itemPtr) {
         temp = temp->next;
     }
 
-    if (temp)
-    {
+    if (temp) {
         temp->previous->next = temp->next;
-        if (temp->next)
-        {
+        if (temp->next) {
             temp->next->previous = temp->previous;
         }
     }
 }
-ListItem *List::at(int pos)
-{
+ListItem *List::at(int pos) {
     ListItem *temp = head.next;
 
-    for (int i = 0; (i < pos) && temp; ++i, temp = temp->next)
-    {
+    for (int i = 0; (i < pos) && temp; ++i, temp = temp->next) {
     }
 
     return temp;
 }
 
-int List::find(ListItem *itemPtr)
-{
+int List::find(ListItem *itemPtr) {
     int pos = 0;
     ListItem *temp = head.next;
-    while (temp && temp != itemPtr)
-    {
+    while (temp && temp != itemPtr) {
         temp = temp->next;
         ++pos;
     }
 
-    if (temp && temp == itemPtr)
-    {
+    if (temp && temp == itemPtr) {
         return pos;
-    }
-    else
-    {
+    } else {
         return -1;
     }
 }
