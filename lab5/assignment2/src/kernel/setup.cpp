@@ -33,8 +33,8 @@ void first_thread(void *arg) {
            programManager.running->createdTicks);
     if (!programManager.running->pid) {
         programManager.executeThread(second_thread, nullptr, "second thread",
-                                     1);
-        programManager.executeThread(third_thread, nullptr, "third thread", 1);
+                                     2);
+        programManager.executeThread(third_thread, nullptr, "third thread", 3);
     }
     while (1) {
     }
